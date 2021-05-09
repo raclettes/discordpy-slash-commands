@@ -19,12 +19,25 @@ bot = commands.Bot(command_prefix="!", intents=Intents.all())
 s = SlashCommand(bot, sync_commands=True)
 
 
-@s.slash(description="Test", guild_ids=guild_ids)
-async def echo(ctx: SlashContext, my_arg: Tuple[str, Literal["a description"]]):
+@s.slash(guild_ids=guild_ids)
+async def echo(ctx: SlashContext, my_arg: str):
+    """
+    Test
+
+    Parameters
+    ----------
+    my_arg : str
+        The description
+    """
     await ctx.send(f"You said {my_arg}")
 
 @s.slash(name="test", guild_ids=guild_ids)
 async def _test(ctx: SlashContext, member: discord.Member):
+    """
+    My command using another style
+
+    :param member: The member to say hello to
+    """
     await ctx.send(f"Hello {member.mention}")
 
 

@@ -41,7 +41,7 @@ class TestPySlash(unittest.TestCase):
         def func(foo: str, bar: Union[Literal[1], Literal[2, "name"]], baz: Union[commands.Converter, int] = "bin"):
             pass
 
-        kwargs, _ = get_slash_kwargs("test", "test", [], False, func)
+        kwargs, _ = get_slash_kwargs(func, "test", "test", [], False)
         self.assertEqual(kwargs["options"][0], {
             "name": "foo",
             "description": "No description",
@@ -69,14 +69,42 @@ class TestPySlash(unittest.TestCase):
             "choices": []
         })
     
-    def test_optional_converter(self):
+    def test_docstrings(self):
         def func(baz: Optional[commands.Converter] = "bin"):
+            """
+            My description for the command
+
+            Parameters
+            ----------
+            baz : Optional[commands.Converter], optional
+                My description, by default "bin"
+            """
             pass
 
-        kwargs, _ = get_slash_kwargs("test", "test", [], False, func)
+        kwargs, _ = get_slash_kwargs(func)
+        self.assertEqual(kwargs["description"], "My description for the command")
         self.assertEqual(kwargs["options"][0], {
             "name": "baz",
-            "description": "No description",
+            "description": "My description, by default \"bin\"",
+            "type": SlashCommandOptionType.STRING,
+            "required": False,
+            "choices": []
+        })
+    
+    def test_plain_details(self):
+        def func(baz: Optional[commands.Converter] = "bin"):
+            """
+            My description for the command
+
+            :param baz: My description
+            """
+            pass
+
+        kwargs, _ = get_slash_kwargs(func)
+        self.assertEqual(kwargs["description"], "My description for the command")
+        self.assertEqual(kwargs["options"][0], {
+            "name": "baz",
+            "description": "My description",
             "type": SlashCommandOptionType.STRING,
             "required": False,
             "choices": []
@@ -84,4 +112,4 @@ class TestPySlash(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2)

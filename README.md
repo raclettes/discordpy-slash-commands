@@ -41,18 +41,30 @@ async def foo(ctx: SlashContext, member: discord.Member):
 
 ### Descriptions
 
-By default, each argument has the description `No description`, but that can be changed by providing a `Tuple` of any type and a `Literal`.
+By default, each argument and command has the description `No description`, but that can be changed by providing a docstring. Docstrings are supported as provided by [docstring-parser](https://pypi.org/project/docstring-parser/) &mdash; *at time of writing, that is [ReST](https://www.python.org/dev/peps/pep-0287/), [Google](https://google.github.io/styleguide/pyguide.html), and [Numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html).*
 ```python
 from typing import Tuple, Literal
 
 # ...
 
-description = Literal["my description here"]
 @s.slash()
-async def foo(ctx: SlashContext, member: Tuple[discord.Member, description]):
-    # This command will automatically be called 'foo', and the argument member
-    # will have the description "my description here"
+async def foo(ctx: SlashContext, member: discord.Member):
+    """
+    My command description here!
+
+    :param member: my description here
+    """
+    # This command will automatically be called 'foo', and have the description
+    # "My command description here!", and the argument `member` will have the
+    # description "my description here".
     await ctx.send(f"Hello, {member.mention}")
+```
+
+It's also possible to pass the command description through the decorator as follows, although that's not recommended (and will override any docstring provided description):
+```python
+@s.slash(description="My description!")
+async def command(ctx):
+    pass
 ```
 
 ## Advanced usage

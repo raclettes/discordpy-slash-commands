@@ -1,12 +1,14 @@
 import inspect
 import keyword
-from typing import Any, List, Literal, Union
+from typing import Any, Dict, List, Literal, Union
 
 from discord.ext import commands
 from discord.ext.commands.errors import CommandError
 from discord_slash.context import SlashContext
 from discord_slash.model import SlashCommandOptionType
 from discord_slash.utils.manage_commands import create_choice, create_option
+from docstring_parser import parse
+from docstring_parser.common import DocstringParam
 
 
 class InvalidParameter(CommandError):
@@ -105,11 +107,14 @@ def get_slash_command_type(annotation: Any) -> SlashCommandOptionType:
     InvalidParameter
         No parameter type could be found
     """
+    root_type = get_root_type(annotation)
+
     # If it's a converter or an optional of a converter, it will always be a string
-    if issubclass(get_root_type(annotation), commands.Converter):
+    if issubclass(root_type, commands.Converter):
         return SlashCommandOptionType.STRING
 
-    type_ = SlashCommandOptionType.from_type(get_root_type(annotation))
+    # Otherwise, try to fetch from enum
+    type_ = SlashCommandOptionType.from_type(root_type)
     if type_ is None:
         raise InvalidParameter(
             f"Parameter: {str(annotation)} does not match any Discord type")
@@ -117,22 +122,46 @@ def get_slash_command_type(annotation: Any) -> SlashCommandOptionType:
     return type_
 
 
-def get_slash_kwargs(name: str, description: str, guild_ids: List[int], remove_underscore_keywords: bool, function):
+def get_descriptions(params: List[DocstringParam]) -> Dict[str, str]:
+    """
+    Turn a list of docstring paramsinto a dictionary
+
+    Parameters
+    ----------
+    params : List[DocstringParam]
+        The docstring params
+
+    Returns
+    -------
+    Dict[str, str]
+        The dictionary of parameter: description
+    """
+    descriptions = {}
+    for param in params:
+        name, description = param.arg_name, param.description
+        descriptions[name] = description
+
+    return descriptions
+
+
+def get_slash_kwargs(function: Any, name: str = None, description: str = None, guild_ids: List[int] = None, remove_underscore_keywords: bool = False):
     """
     Get the kwargs required for cog_ext.cog_slash or SlashCommand.slash
 
     Parameters
     ----------
-    name : str
-        The name of the command
-    description : str
-        The description of the command
-    guild_ids : List[int]
-        List of guild IDs to add the command to
-    remove_underscore_keywords : bool
-        Whether to remove _ from the end of arguments that would be keywords
     function : any
         The command
+    name : str, optional
+        The name of the command, by default None
+    description : str, optional
+        The description of the command (will override any docstring provided
+        description if not None), by default None
+    guild_ids : List[int], optional
+        List of guild IDs to add the command to, by default None
+    remove_underscore_keywords : bool, optional
+        Whether to remove _ from the end of arguments that would be keywords,
+        by default False
 
     Returns
     -------
@@ -143,7 +172,14 @@ def get_slash_kwargs(name: str, description: str, guild_ids: List[int], remove_u
     """
     # Use annotations
     signature = inspect.signature(function)
+    # Use docstring signatures to get descriptions
+    parsed_docstring = parse(function.__doc__)
+    # Command description
+    description = description or parsed_docstring.short_description
+    # Parameter descriptions
+    param_descriptions = get_descriptions(parsed_docstring.params)
 
+    # Building params for function
     params = dict(
         name=name or function.__name__,
         description=description or "No description",
@@ -165,11 +201,9 @@ def get_slash_kwargs(name: str, description: str, guild_ids: List[int], remove_u
             param_name_mapping[param_name[:-1]] = param_name
             param_name = param_name[:-1]
 
-        # If it's a tuple of a type and a literal, the second argument is a description
-        param_description = "No description"
-        if getattr(annotation, "__origin__", None) == tuple and len(annotation.__args__) == 2:
-            param_description = annotation.__args__[1].__args__[0]
-            annotation = annotation.__args__[0]
+        # Get descriptions or use default
+        param_description = param_descriptions.get(
+            param_name, "No description")
 
         # Default to no choices
         choices = None
@@ -188,6 +222,7 @@ def get_slash_kwargs(name: str, description: str, guild_ids: List[int], remove_u
             # Just use converter params
             converter_params[param_name] = annotation
 
+        # Add the parameter/"option"
         params['options'].append(create_option(
             name=param_name,
             description=param_description,

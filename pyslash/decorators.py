@@ -26,7 +26,7 @@ def slash_cog(name: str = None, description: str = None, guild_ids: List[int] = 
     def decorator(function):
         # Use annotations
         params, converter_params = get_slash_kwargs(
-            name, description, guild_ids, remove_underscore_keywords, function)
+            function, name, description, guild_ids, remove_underscore_keywords)
         return cog_ext.cog_slash(**params)(convert(**converter_params)(function))
 
     return decorator
@@ -53,7 +53,7 @@ def slash(slash_class: SlashCommand, name: str = None, description: str = None, 
     def decorator(function):
         # Use annotations
         params, converter_params = get_slash_kwargs(
-            name, description, guild_ids, remove_underscore_keywords, function)
+            function, name, description, guild_ids, remove_underscore_keywords)
         return slash_class.slash(**params)(convert(**converter_params)(function))
 
     return decorator
