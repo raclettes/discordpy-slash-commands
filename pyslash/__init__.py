@@ -8,4 +8,4 @@ from .client import SlashCommand
 from .converters import convert
 from .decorators import slash, slash_cog
 
-__version__ = "1.2.0rc1"
+__version__ = "1.2.0"
