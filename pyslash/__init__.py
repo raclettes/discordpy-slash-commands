@@ -1,3 +1,11 @@
-from discord_slash import *
-from .converters import *
-from .decorators import *
+# Re-export from discord_slash
+from discord_slash.context import SlashContext
+from discord_slash.model import SlashCommandOptionType
+from discord_slash.utils import manage_commands
+
+# Export own functions and classes
+from .client import SlashCommand
+from .converters import convert
+from .decorators import slash, slash_cog
+
+__version__ = "1.1.0rc1"

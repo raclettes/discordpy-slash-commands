@@ -56,7 +56,7 @@ def get_root_type(value: Any):
         return type(value)
 
 
-def validate_literal_union(union: Union) -> bool:
+def validate_literal_union(union: Any) -> bool:
     """
     Validate a Union parameter. All arguments must be a literal and
     of the same type. This only includes the first parameter

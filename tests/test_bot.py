@@ -3,11 +3,10 @@ from typing import Literal, Tuple
 import discord
 
 from discord_slash.context import SlashContext
-from pyslash import slash
+from pyslash import SlashCommand
 
 from discord.ext import commands
 from discord.flags import Intents
-from discord_slash import SlashCommand
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,11 +19,11 @@ bot = commands.Bot(command_prefix="!", intents=Intents.all())
 s = SlashCommand(bot, sync_commands=True)
 
 
-@slash(s, description="Test", guild_ids=guild_ids)
+@s.slash(description="Test", guild_ids=guild_ids)
 async def echo(ctx: SlashContext, my_arg: Tuple[str, Literal["a description"]]):
     await ctx.send(f"You said {my_arg}")
 
-@slash(s, name="test", guild_ids=guild_ids)
+@s.slash(name="test", guild_ids=guild_ids)
 async def _test(ctx: SlashContext, member: discord.Member):
     await ctx.send(f"Hello {member.mention}")
 

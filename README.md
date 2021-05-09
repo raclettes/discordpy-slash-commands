@@ -6,34 +6,34 @@ The examples provided are based of the examples from the original repository.
 ## Quick startup
 Firstly you must install the package, as explained [here](#installation).
 
-A simple setup using `slash` and adding a basic command
+A simple setup using `slash` and adding a basic command.
 ```python
 import discord
 from discord.ext import commands
-from discord_slash import SlashCommand, SlashContext
-from pyslash import slash
+from pyslash import SlashCommand, SlashContext
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 s = SlashCommand(bot)
 
-@slash(s, name="test")
+@s.slash(name="test")
 async def _test(ctx: SlashContext, arg0: str):
     embed = discord.Embed(title="embed test")
     await ctx.send(content=arg0, embeds=[embed])
 
 bot.run("discord_token")
 ```
+*As of `1.1.0`, you no longer need to import `slash` from `pyslash` and provide the instance as the first variable, as pyslash now has a subclass of `SlashCommand` that does this for you.*
 
 Converters are automatically handled, for example
 ```python
-@slash(s, name="test")
+@s.slash(name="test")
 async def _test(ctx: SlashContext, member: discord.Member):
     await ctx.send(f"*taps mic* testing, {member.mention}")
 ```
 
 And names don't have to be given
 ```python
-@slash(s)
+@s.slash()
 async def foo(ctx: SlashContext, member: discord.Member):
     # This command will automatically be called 'foo'
     await ctx.send(f"Hello, {member.mention}")
@@ -48,10 +48,10 @@ from typing import Tuple, Literal
 # ...
 
 description = Literal["my description here"]
-@slash(s)
-async def foo(ctx: SlashContext, member: typing.Tuple[discord.Member, description]):
-    # This command will automatically be called 'foo', and have
-    # the description "my description here"
+@s.slash
+async def foo(ctx: SlashContext, member: Tuple[discord.Member, description]):
+    # This command will automatically be called 'foo', and the argument member
+    # will have the description "my description here"
     await ctx.send(f"Hello, {member.mention}")
 ```
 
@@ -61,7 +61,7 @@ The same usage applies for cogs, but a different function is used.
 ```python
 # bot.py
 from discord.ext import commands
-from discord_slash import SlashCommand
+from pyslash import SlashCommand
 
 bot = commands.Bot(command_prefix="prefix")
 slash = SlashCommand(bot, override_type = True)
@@ -72,8 +72,7 @@ bot.run("TOKEN")
 # cog.py
 import discord
 from discord.ext import commands
-from discord_slash import SlashContext
-from pyslash import cog_ext
+from pyslash import SlashContext, slash_cog
 
 class Slash(commands.Cog):
     def __init__(self, bot):
@@ -93,9 +92,9 @@ To install from pip, run
 pip install dpyslash
 ```
 
-To install, clone the repository and then build:
+To install from source, clone the repository and then build:
 ```
-git clone https://github.com/starsflower/discordpy-slash-commands
+git clone https://github.com/starsflower/discordpy-slash-commands.git
 cd discordpy-slash-commands
 python setup.py install
 ```

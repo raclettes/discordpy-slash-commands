@@ -1,10 +1,11 @@
-from discord_slash.model import SlashCommandOptionType
-from pyslash.decorators import get_slash_command_type, get_slash_kwargs, is_optional_of, slash_cog
-from typing import Literal, Optional, Union
 import unittest
+from typing import Literal, Optional, Union
 
 from discord.ext import commands
-from pyslash import validate_literal_union, is_converter
+from discord_slash.model import SlashCommandOptionType
+from pyslash.decorators import (get_slash_command_type, get_slash_kwargs,
+                                is_optional_of)
+from pyslash.utils import is_converter, validate_literal_union
 
 
 class TestPySlash(unittest.TestCase):
