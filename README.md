@@ -48,7 +48,7 @@ from typing import Tuple, Literal
 # ...
 
 description = Literal["my description here"]
-@s.slash
+@s.slash()
 async def foo(ctx: SlashContext, member: Tuple[discord.Member, description]):
     # This command will automatically be called 'foo', and the argument member
     # will have the description "my description here"
