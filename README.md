@@ -88,6 +88,11 @@ def setup(bot):
 ```
 
 ## Installation
+To install from pip, run
+```
+pip install dpyslash
+```
+
 To install, clone the repository and then build:
 ```
 git clone https://github.com/starsflower/discordpy-slash-commands
