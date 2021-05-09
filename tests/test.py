@@ -68,6 +68,19 @@ class TestPySlash(unittest.TestCase):
             "required": False,
             "choices": []
         })
+    
+    def test_optional_converter(self):
+        def func(baz: Optional[commands.Converter] = "bin"):
+            pass
+
+        kwargs, _ = get_slash_kwargs("test", "test", [], False, func)
+        self.assertEqual(kwargs["options"][0], {
+            "name": "baz",
+            "description": "No description",
+            "type": SlashCommandOptionType.STRING,
+            "required": False,
+            "choices": []
+        })
 
 
 if __name__ == "__main__":

@@ -106,7 +106,7 @@ def get_slash_command_type(annotation: Any) -> SlashCommandOptionType:
         No parameter type could be found
     """
     # If it's a converter or an optional of a converter, it will always be a string
-    if get_root_type(annotation) == commands.Converter:
+    if issubclass(get_root_type(annotation), commands.Converter):
         return SlashCommandOptionType.STRING
 
     type_ = SlashCommandOptionType.from_type(get_root_type(annotation))
