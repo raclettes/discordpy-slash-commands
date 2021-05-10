@@ -37,6 +37,28 @@ class TestPySlash(unittest.TestCase):
         self.assertEqual(
             get_slash_command_type(Union[commands.Converter, str]), SlashCommandOptionType.STRING)
 
+    def test_typeless_kwarg_generation(self):
+        def func(foo, bar):
+            pass
+
+        kwargs, _ = get_slash_kwargs(func)
+
+        self.assertEqual(kwargs["options"][0], {
+            "name": "foo",
+            "description": "No description",
+            "type": SlashCommandOptionType.STRING,
+            "required": True,
+            "choices": []
+        })
+
+        self.assertEqual(kwargs["options"][1], {
+            "name": "bar",
+            "description": "No description",
+            "type": SlashCommandOptionType.STRING,
+            "required": True,
+            "choices": []
+        })
+
     def test_slash_kwarg_generation(self):
         def func(foo: str, bar: Union[Literal[1], Literal[2, "name"]], baz: Union[commands.Converter, int] = "bin"):
             pass

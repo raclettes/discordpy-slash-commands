@@ -107,6 +107,10 @@ def get_slash_command_type(annotation: Any) -> SlashCommandOptionType:
     InvalidParameter
         No parameter type could be found
     """
+    # If there's no annotation, assume it's a string
+    if annotation == inspect.Parameter.empty:
+        return SlashCommandOptionType.STRING
+    
     root_type = get_root_type(annotation)
 
     # If it's a converter or an optional of a converter, it will always be a string
@@ -117,7 +121,8 @@ def get_slash_command_type(annotation: Any) -> SlashCommandOptionType:
     type_ = SlashCommandOptionType.from_type(root_type)
     if type_ is None:
         raise InvalidParameter(
-            f"Parameter: {str(annotation)} does not match any Discord type")
+            f"Parameter annotation {str(annotation)} does not match any Discord "
+             "type (perhaps use a converter?)")
 
     return type_
 
