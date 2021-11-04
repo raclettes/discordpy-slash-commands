@@ -8,7 +8,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'requirements.txt'), e
     install_requires = f.readlines()
 
 setup(name='dpyslash',
-      version='1.2.1',
+      version='1.2.2rc1',
       description='Improves slash commands for Python',
       author='starsflower',
       url='https://github.com/starsflower/discordpy-slash-commands',
